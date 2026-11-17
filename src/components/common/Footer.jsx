@@ -1,61 +1,122 @@
-import React from 'react'
-import { IoLogoInstagram } from "react-icons/io5";
-import { RiBlueskyLine } from "react-icons/ri";
+import { Link } from 'react-router-dom';
+import { FaGraduationCap, FaWhatsapp, FaInstagram, FaHeart, FaShieldAlt } from 'react-icons/fa';
+import { KERALA_COLLEGES } from '../../constants/colleges';
 
 export default function Footer() {
-
-  
-  
   return (
-    <>
-    
-       <footer aria-labelledby="ft-simple-title" className="border-t border-neutral-200 bg-white px-4 md:px-8 ">
-         <h2 id="ft-simple-title" className="sr-only">Footer</h2>
-         <div className="mx-auto max-w-7xl">
-            <div className="flex flex-col items-start gap-6 py-10 md:flex-row md:items-center md:justify-between">
-
-
-                        <a href="/" className="flex items-center  text-lg font-bold text-slate-900">
-          <span className="grid h-8 w-12 place-items-center rounded-xl bg-blue-500 text-white">
-            CAM
-          </span>
-          swa<span className="text-blue-500">PUS</span>
-        </a>
-                
-                
-               <nav aria-label="Footer">
-                   
-                      <ul className="flex flex-wrap gap-x-6 gap-y-3 ">
-                       <li className='rounded-sm text-sm text-neutral-600 transform-border duration-150 hover:border-b'>Product</li>
-                     <li className='rounded-sm text-sm text-neutral-600 transform-border duration-150 hover:border-b'>Features</li>
-                     <li className='rounded-sm text-sm text-neutral-600 transform-border duration-150 hover:border-b'>Pricing</li>
-                     <li className='rounded-sm text-sm text-neutral-600 transform-border duration-150 hover:border-b'>Customers</li>
-                     <li className='rounded-sm text-sm text-neutral-600 transform-border duration-150 hover:border-b'>Docs</li>
-                     <li className='rounded-sm text-sm text-neutral-600 transform-border duration-150 hover:border-b'>Contact</li>
-                    
-                  </ul>
-                  
-               </nav>
+    <footer className="border-t border-slate-200 bg-white pt-12 pb-8 text-slate-600">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4 pb-12 border-b border-slate-200">
+          
+          {/* Brand & Mission */}
+          <div className="space-y-4">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/20">
+                <FaGraduationCap className="text-lg" />
+              </span>
+              <span className="font-extrabold text-xl tracking-tight text-slate-900">
+                Campus<span className="text-sky-500">Swap</span>
+              </span>
+            </Link>
+            <p className="text-sm text-slate-500 leading-relaxed">
+              Kerala&apos;s dedicated student marketplace. Buy, sell, and swap college textbooks, KTU tools, calculators, and hostel essentials directly with batchmates on campus.
+            </p>
+            <div className="flex items-center gap-3 pt-2">
+              <a
+                href="https://whatsapp.com"
+                target="_blank"
+                rel="noreferrer"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition"
+                title="Join Student WhatsApp Community"
+              >
+                <FaWhatsapp className="text-lg" />
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noreferrer"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-50 text-pink-600 hover:bg-pink-600 hover:text-white transition"
+                title="Instagram"
+              >
+                <FaInstagram className="text-lg" />
+              </a>
             </div>
-            <div className="flex flex-col gap-4 border-t border-neutral-200 py-6 text-sm text-neutral-600 sm:flex-row sm:items-center sm:justify-between dark:border-neutral-800 dark:text-dark-400">
-               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  <p>© 2026 CAMswaPUS</p>
-                  <ul className="flex flex-wrap gap-x-4 gap-y-2">
-                     <li><a href="#" className="rounded-sm whitespace-nowrap transform-border duration-150 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black dark:hover:text-black dark:focus-visible:outline-black-50">Privacy</a></li>
-                     <li><a href="#" className="rounded-sm whitespace-nowrap transform-border duration-150 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black dark:hover:text-black dark:focus-visible:outline-black-50">Terms</a></li>
-                     <li><a href="#" className="rounded-sm whitespace-nowrap transform-border duration-150 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black dark:hover:text-black dark:focus-visible:outline-black-50">Cookies</a></li>
-                  </ul>
-               </div>
-               <ul className="-ml-2 flex items-center gap-1 sm:-mr-2 sm:ml-0">
-                  <li><a href="#" aria-label=" on X" className="inline-flex size-8 items-center justify-center rounded-lg text-neutral-600 transform-border duration-150 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-50 dark:focus-visible:outline-zinc-50"><svg className="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z" /></svg></a></li>
-                  <li><a href="#" aria-label=" on GitHub" className="inline-flex size-8 items-center justify-center rounded-lg text-neutral-600 transform-border duration-150 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-50 dark:focus-visible:outline-zinc-50"><svg className="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" /></svg></a></li>
-                  <li><a href="#" aria-label=" on LinkedIn" className="inline-flex size-8 items-center justify-center rounded-lg text-neutral-600 transform-border duration-150 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-50 dark:focus-visible:outline-zinc-50"><svg className="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.994 24v-.001H24v-8.802c0-4.306-.927-7.623-5.961-7.623-2.42 0-4.044 1.328-4.707 2.587h-.07V7.976H8.489v16.023h4.97v-7.934c0-2.089.396-4.109 2.983-4.109 2.549 0 2.587 2.384 2.587 4.243V24zM.396 7.977h4.976V24H.396zM2.882 0C1.291 0 0 1.291 0 2.882s1.291 2.909 2.882 2.909 2.882-1.318 2.882-2.909A2.884 2.884 0 0 0 2.882 0" /></svg></a></li>
-                  <li><a href="#" aria-label=" on YouTube" className="inline-flex size-8 items-center justify-center rounded-lg text-neutral-600 transform-border duration-150 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-50 dark:focus-visible:outline-zinc-50"><svg className="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg></a></li>
-               </ul>
-            </div>
-         </div>
-      </footer>
+          </div>
 
-    </>
-  )
+          {/* Quick Categories */}
+          <div>
+            <h4 className="font-bold text-slate-900 text-sm mb-4">Popular Swap Categories</h4>
+            <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link to="/products?category=drawing-tools" className="hover:text-sky-600 transition">
+                  📐 Mini Drafter & Drawing Boards
+                </Link>
+              </li>
+              <li>
+                <Link to="/products?category=calculators" className="hover:text-sky-600 transition">
+                  🧮 Casio fx-991EX / CW Calculators
+                </Link>
+              </li>
+              <li>
+                <Link to="/products?category=books" className="hover:text-sky-600 transition">
+                  📚 KTU Textbooks & Solved Papers
+                </Link>
+              </li>
+              <li>
+                <Link to="/products?category=lab-uniform" className="hover:text-sky-600 transition">
+                  🥼 Lab Coats & Workshop Aprons
+                </Link>
+              </li>
+              <li>
+                <Link to="/products?category=hostel" className="hover:text-sky-600 transition">
+                  🛏️ Hostel Kettles, Lamps & Fans
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Top Kerala Campuses */}
+          <div>
+            <h4 className="font-bold text-slate-900 text-sm mb-4">Featured Campuses</h4>
+            <ul className="space-y-2.5 text-sm">
+              {KERALA_COLLEGES.slice(1, 6).map((c) => (
+                <li key={c.id}>
+                  <Link to={`/products?college=${c.id}`} className="hover:text-sky-600 transition flex items-center gap-1.5">
+                    <span>📍</span>
+                    <span className="truncate">{c.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Campus Safety & Trust */}
+          <div className="bg-sky-50/60 p-4 rounded-2xl border border-sky-100">
+            <div className="flex items-center gap-2 font-bold text-sky-950 text-sm mb-2">
+              <FaShieldAlt className="text-sky-600" />
+              <span>Safe Campus Trading</span>
+            </div>
+            <p className="text-xs text-sky-800 leading-relaxed mb-3">
+              Always meet in busy campus spots like the College Canteen, Central Library porch, or Department Lobby. Inspect items before paying via UPI.
+            </p>
+            <div className="text-[11px] font-bold text-sky-800 bg-sky-100 px-2.5 py-1.5 rounded-lg border border-sky-200">
+              ✨ 100% Free • No Commission
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between pt-6 text-xs text-slate-400 gap-3">
+          <p>© {new Date().getFullYear()} CampusSwap Kerala. All rights reserved.</p>
+          <p className="flex items-center gap-1">
+            Built with <FaHeart className="text-sky-500 text-xs" /> for students across Kerala.
+          </p>
+        </div>
+
+      </div>
+    </footer>
+  );
 }
