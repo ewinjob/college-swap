@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FaGraduationCap, FaWhatsapp, FaInstagram, FaHeart, FaShieldAlt } from 'react-icons/fa';
+import { FaGraduationCap, FaWhatsapp, FaInstagram, FaHeart, FaShieldAlt, FaLock } from 'react-icons/fa';
 import { KERALA_COLLEGES } from '../../constants/colleges';
 
 export default function Footer() {
@@ -111,9 +111,20 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-6 text-xs text-slate-400 gap-3">
           <p>© {new Date().getFullYear()} CampusSwap Kerala. All rights reserved.</p>
-          <p className="flex items-center gap-1">
-            Built with <FaHeart className="text-sky-500 text-xs" /> for students across Kerala.
-          </p>
+          <div className="flex items-center gap-4">
+            <Link 
+              to="/admin" 
+              className="flex items-center gap-1 text-slate-400 hover:text-sky-600 transition"
+              title="Admin & Ghost Dashboard"
+            >
+              <FaLock className="text-[10px]" />
+              <span>Admin Portal</span>
+            </Link>
+            <span className="text-slate-300">•</span>
+            <p className="flex items-center gap-1">
+              Built with <FaHeart className="text-sky-500 text-xs" /> for students across Kerala.
+            </p>
+          </div>
         </div>
 
       </div>

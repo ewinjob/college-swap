@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
 import MainLayout from './layout/MainLayout';
@@ -12,9 +12,11 @@ import AddProduct from './pages/AddProduct';
 import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 
-// Ghost Admin Pages (/ghost)
+// Admin Pages
 import Dashboard from './admin/Dashboard';
 import AdminProducts from './admin/Products';
+import AdminUsers from './admin/Users';
+import AdminReports from './admin/Reports';
 
 function App() {
   return (
@@ -28,10 +30,19 @@ function App() {
         <Route path="auth" element={<Auth />} />
       </Route>
 
-      {/* 👻 Ghost Admin Routes with AdminLayout */}
+      {/* 👑 Admin Routes - Works on BOTH /admin and /ghost */}
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="products" element={<AdminProducts />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="reports" element={<AdminReports />} />
+      </Route>
+
       <Route path="/ghost" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="reports" element={<AdminReports />} />
       </Route>
 
       {/* 404 Fallback */}

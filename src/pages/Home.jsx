@@ -13,100 +13,7 @@ import {
 } from 'react-icons/fa';
 import ProductCard from '../components/cards/ProductCard';
 import { KERALA_COLLEGES } from '../constants/colleges';
-
-// Sample Featured Kerala Listings with real items students need
-const SAMPLE_LISTINGS = [
-  {
-    id: '1',
-    title: 'Omega Mini Drafter with Canvas Bag + Clips',
-    price: 380,
-    isFree: false,
-    isSwap: false,
-    category: 'Drawing Tools',
-    college: 'Govt. Model Engineering College (MEC)',
-    collegeId: 'mec',
-    condition: 'Like New',
-    image: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=600&q=80',
-    sellerName: 'Arjun K.',
-    sellerPhone: '9847123456',
-    postedTime: '1 hr ago'
-  },
-  {
-    id: '2',
-    title: 'Casio fx-991EX ClassWiz Scientific Calculator',
-    price: 650,
-    isFree: false,
-    isSwap: false,
-    category: 'Calculators',
-    college: 'College of Engineering Trivandrum (CET)',
-    collegeId: 'cet',
-    condition: 'Gently Used',
-    image: 'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?auto=format&fit=crop&w=600&q=80',
-    sellerName: 'Sneha Nair',
-    sellerPhone: '9447123456',
-    postedTime: '3 hrs ago'
-  },
-  {
-    id: '3',
-    title: 'KTU S3 Computer Science Core Subjects Bundle (4 Books)',
-    price: 0,
-    isFree: false,
-    isSwap: true,
-    category: 'KTU Books',
-    college: 'TKM College of Engineering',
-    collegeId: 'tkm',
-    condition: 'Used (Good Condition)',
-    image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80',
-    sellerName: 'Fahad M.',
-    sellerPhone: '9895123456',
-    postedTime: 'Yesterday'
-  },
-  {
-    id: '4',
-    title: 'White Lab Apron (Size L) + Chemistry Safety Goggles',
-    price: 150,
-    isFree: false,
-    isSwap: false,
-    category: 'Lab Aprons',
-    college: 'Govt. Engineering College (GEC) Thrissur',
-    collegeId: 'gect',
-    condition: 'Like New',
-    image: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=600&q=80',
-    sellerName: 'Ananya P.',
-    sellerPhone: '9744123456',
-    postedTime: '2 days ago'
-  },
-  {
-    id: '5',
-    title: 'Hero Sprint 21-Speed Bicycle (Hostel Commute)',
-    price: 2400,
-    isFree: false,
-    isSwap: false,
-    category: 'Bicycles',
-    college: 'CUSAT (Cochin University)',
-    collegeId: 'cusat',
-    condition: 'Used (Good Condition)',
-    image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=600&q=80',
-    sellerName: 'Vishnu Das',
-    sellerPhone: '9633123456',
-    postedTime: 'Just now'
-  },
-  {
-    id: '6',
-    title: 'Electric Kettle 1.5L + Study Desk Lamp',
-    price: 499,
-    isFree: false,
-    isSwap: false,
-    category: 'Hostel Essentials',
-    college: 'National Institute of Technology (NIT) Calicut',
-    collegeId: 'nitc',
-    condition: 'Like New',
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
-    sellerName: 'Devika R.',
-    sellerPhone: '9562123456',
-    postedTime: '4 hrs ago'
-  }
-];
+import { ALL_PRODUCTS } from '../utils/allProducts';
 
 const CATEGORIES = [
   { id: 'drawing-tools', label: 'Mini Drafter & Tools', count: '140+ items', icon: FaDraftingCompass, color: 'from-sky-500 to-blue-600' },
@@ -133,10 +40,10 @@ export default function Home() {
     navigate(`/products?${params.toString()}`);
   };
 
-  // Filter listings based on selected campus tab
+  // Filter listings based on selected campus tab using ALL_PRODUCTS from utility
   const filteredListings = activeTabCollege === 'all'
-    ? SAMPLE_LISTINGS
-    : SAMPLE_LISTINGS.filter(item => item.collegeId === activeTabCollege);
+    ? ALL_PRODUCTS.slice(0, 6)
+    : ALL_PRODUCTS.filter(item => item.collegeId === activeTabCollege);
 
   const topCollegeTabs = [
     { id: 'all', name: 'All Kerala' },
@@ -366,7 +273,7 @@ export default function Home() {
             to="/products"
             className="text-sm font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1"
           >
-            <span>Browse All {SAMPLE_LISTINGS.length}+ Items</span>
+            <span>Browse All {ALL_PRODUCTS.length}+ Items</span>
             <span>&rarr;</span>
           </Link>
         </div>

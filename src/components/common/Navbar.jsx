@@ -28,14 +28,15 @@ export default function Navbar({ selectedCollege, onSelectCollege }) {
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-tr from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/25 group-hover:scale-105 transition duration-200">
               <FaGraduationCap className="text-xl" />
             </span>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1 font-black text-xl tracking-tight text-slate-900 leading-none">
-                Campus<span className="text-sky-500">Swap</span>
-              </div>
-              <span className="text-[10px] font-bold text-sky-600 tracking-wider uppercase">
-                Kerala 🌴
-              </span>
-            </div>
+
+       <div className="flex flex-col">
+  <div className="font-bold text-xl tracking-tight text-slate-900 leading-none">
+    cam<span className="text-sky-500">swa</span>pus
+  </div>
+  <span className="text-[10px] font-semibold text-sky-600 tracking-wider uppercase">
+    Kerala 🌴
+  </span>
+</div>
           </Link>
 
           {/* Kerala College Selector Dropdown (Desktop) */}

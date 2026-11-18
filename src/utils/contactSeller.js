@@ -1,7 +1,4 @@
-/**
- * Generates a pre-filled direct WhatsApp click-to-chat URL.
- * Automatically handles Indian country code (+91).
- */
+
 export const getWhatsAppLink = (phone, itemTitle, collegeName) => {
   if (!phone) return '#';
   
@@ -16,9 +13,7 @@ export const getWhatsAppLink = (phone, itemTitle, collegeName) => {
   return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
 };
 
-/**
- * Generates a pre-filled mailto link for reaching the seller.
- */
+
 export const getMailtoLink = (email, itemTitle, collegeName) => {
   if (!email) return '#';
   const subject = `Inquiry: ${itemTitle} on CollegeSwap Kerala`;

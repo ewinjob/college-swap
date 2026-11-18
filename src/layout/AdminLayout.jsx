@@ -6,17 +6,20 @@ import {
   FaExclamationTriangle, 
   FaChartPie, 
   FaArrowLeft,
-  FaPlus
+  FaPlus,
+  FaShieldAlt
 } from 'react-icons/fa';
 
 export default function AdminLayout() {
   const location = useLocation();
+  const isGhost = location.pathname.startsWith('/ghost');
+  const basePath = isGhost ? '/ghost' : '/admin';
 
   const navItems = [
-    { label: 'Overview', path: '/ghost', icon: FaChartPie },
-    { label: 'Manage Products', path: '/ghost/products', icon: FaBoxOpen },
-    { label: 'Registered Students', path: '/ghost/users', icon: FaUsers },
-    { label: 'Reports / Flags', path: '/ghost/reports', icon: FaExclamationTriangle }
+    { label: 'Overview', path: basePath, icon: FaChartPie },
+    { label: 'Manage Products', path: `${basePath}/products`, icon: FaBoxOpen },
+    { label: 'Registered Students', path: `${basePath}/users`, icon: FaUsers },
+    { label: 'Reports / Flags', path: `${basePath}/reports`, icon: FaExclamationTriangle }
   ];
 
   return (
@@ -29,14 +32,14 @@ export default function AdminLayout() {
           {/* Brand */}
           <div className="flex items-center gap-3 px-2">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-600 text-white shadow-lg shadow-sky-500/30 text-lg">
-              <FaGhost />
+              {isGhost ? <FaGhost /> : <FaShieldAlt />}
             </span>
             <div>
               <h2 className="font-black text-base tracking-tight text-white flex items-center gap-1.5">
                 Campus<span className="text-sky-400">Swap</span>
               </h2>
               <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest">
-                Ghost Admin Panel
+                {isGhost ? 'Ghost Admin' : 'Admin Panel'}
               </span>
             </div>
           </div>
@@ -95,7 +98,7 @@ export default function AdminLayout() {
               <span>Upload Swap Item</span>
             </Link>
             <div className="h-8 w-8 rounded-full bg-sky-950 border border-sky-500 text-sky-200 text-xs font-bold flex items-center justify-center">
-              👻
+              {isGhost ? '👻' : '🛡️'}
             </div>
           </div>
         </header>
