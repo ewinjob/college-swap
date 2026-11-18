@@ -14,7 +14,7 @@ export default function NotFound() {
       </p>
       <Link
         to="/"
-        className="rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 px-6 py-2.5 text-xs font-bold text-white hover:from-sky-600 hover:to-blue-700 transition shadow-md shadow-sky-500/20"
+        className="rounded-xl bg-linear-to-r from-sky-500 to-blue-600 px-6 py-2.5 text-xs font-bold text-white hover:from-sky-600 hover:to-blue-700 transition shadow-md shadow-sky-500/20"
       >
         Back to Campus Home
       </Link>

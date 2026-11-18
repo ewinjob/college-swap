@@ -59,7 +59,7 @@ export default function Home() {
     <div className="space-y-16 pb-16">
       
       {/* 1. HERO SECTION (Sky Blue Combined Theme) */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-sky-50/90 via-blue-50/30 to-white pt-12 pb-20 border-b border-slate-200/60">
+      <section className="relative overflow-hidden bg-linear-to-b from-sky-50/90 via-blue-50/30 to-white pt-12 pb-20 border-b border-slate-200/60">
         
         {/* Soft Background Accents */}
         <div className="pointer-events-none absolute -right-20 -top-20 h-96 w-96 rounded-full bg-sky-200/40 blur-3xl" />
@@ -79,12 +79,12 @@ export default function Home() {
 
               {/* Headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.12]">
-                Buy, Sell & Swap College Gear on <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600">Your Campus.</span>
+                Buy, Sell & Swap College Gear on <span className="text-transparent bg-clip-text bg-linear-to-r from-sky-500 via-sky-600 to-blue-600">Your Campus.</span>
               </h1>
 
               {/* Subtitle */}
               <p className="text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                Connect directly with seniors and batchmates at <strong>CET, MEC, TKM, CUSAT, GEC</strong> and other colleges. Buy used KTU drafters, calculators, textbooks, and hostel essentials without courier fees.
+                Connect directly with seniors and batch-mates at <strong>CET, MEC, TKM, CUSAT, GEC</strong> and other colleges. Buy used KTU drafters, calculators, textbooks, and hostel essentials without courier fees.
               </p>
 
               {/* Search + College Combo Box */}
@@ -120,7 +120,7 @@ export default function Home() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-sky-500/25 hover:from-sky-600 hover:to-blue-700 transition"
+                  className="rounded-xl bg-linear-to-r from-sky-500 to-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-sky-500/25 hover:from-sky-600 hover:to-blue-700 transition"
                 >
                   Search
                 </button>
@@ -368,7 +368,7 @@ export default function Home() {
 
       {/* 5. CALL TO ACTION BANNER (Sky Blue combined theme) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-500 via-sky-600 to-blue-700 p-8 sm:p-12 text-white shadow-xl shadow-sky-600/15">
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-sky-500 via-sky-600 to-blue-700 p-8 sm:p-12 text-white shadow-xl shadow-sky-600/15">
           <div className="relative z-10 max-w-2xl space-y-4">
             <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-md">
               Semester Moving Out?

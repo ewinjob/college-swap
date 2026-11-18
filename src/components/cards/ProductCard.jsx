@@ -5,18 +5,18 @@ import { formatCurrency } from '../../utils/formatCurrency';
 
 export default function ProductCard({ product }) {
   const {
-    id = '1',
-    title = 'Engineering Mechanics & Graphics Drafter',
-    price = 450,
-    isFree = false,
-    isSwap = false,
-    category = 'Engineering Tools',
-    college = 'Govt. Model Engineering College (MEC)',
-    condition = 'Like New',
-    image = 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=600&q=80',
-    sellerName = 'Rahul S.',
-    sellerPhone = '9876543210',
-    postedTime = '2 hours ago'
+    id = '',
+    title = '"',
+    price = "",
+    isFree = "",
+    isSwap = "",
+    category = '',
+    college = '',
+    condition = '',
+    image = '',
+    sellerName = '',
+    sellerPhone = '',
+    postedTime = ''
   } = product || {};
 
   const whatsappUrl = getWhatsAppLink(sellerPhone, title, college);

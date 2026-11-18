@@ -87,8 +87,8 @@ export default function Dashboard() {
             <tbody className="divide-y divide-slate-800/60 text-slate-200">
               {items.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-900/60 transition">
-                  <td className="py-3.5 font-bold text-white max-w-[200px] truncate">{item.title}</td>
-                  <td className="py-3.5 text-slate-400 max-w-[180px] truncate">📍 {item.college}</td>
+                  <td className="py-3.5 font-bold text-white max-w-200px truncate">{item.title}</td>
+                  <td className="py-3.5 text-slate-400 max-w-180px truncate">📍 {item.college}</td>
                   <td className="py-3.5 font-bold text-sky-400">{item.price}</td>
                   <td className="py-3.5 text-slate-300">{item.seller}</td>
                   <td className="py-3.5">

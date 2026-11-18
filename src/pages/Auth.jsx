@@ -31,7 +31,7 @@ export default function Auth() {
         
         {/* Top Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/25 mb-1">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-tr from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/25 mb-1">
             <FaGraduationCap className="text-2xl" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
@@ -145,7 +145,7 @@ export default function Auth() {
 
           <button
             type="submit"
-            className="w-full rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 py-3 text-sm font-bold text-white shadow-md shadow-sky-500/25 hover:from-sky-600 hover:to-blue-700 transition"
+            className="w-full rounded-xl bg-linear-to-r from-sky-500 to-blue-600 py-3 text-sm font-bold text-white shadow-md shadow-sky-500/25 hover:from-sky-600 hover:to-blue-700 transition"
           >
             {isLogin ? 'Sign In to CampusSwap' : 'Create Free Student Account'}
           </button>

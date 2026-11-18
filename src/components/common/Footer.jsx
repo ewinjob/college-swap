@@ -13,15 +13,15 @@ export default function Footer() {
           {/* Brand & Mission */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/20">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-tr from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/20">
                 <FaGraduationCap className="text-lg" />
               </span>
-              <span className="font-extrabold text-xl tracking-tight text-slate-900">
-                Campus<span className="text-sky-500">Swap</span>
-              </span>
+               <div className="font-bold text-xl tracking-tight text-slate-900 leading-none">
+               cam<span className="text-sky-500">swa</span>pus
+             </div>
             </Link>
             <p className="text-sm text-slate-500 leading-relaxed">
-              Kerala&apos;s dedicated student marketplace. Buy, sell, and swap college textbooks, KTU tools, calculators, and hostel essentials directly with batchmates on campus.
+              Kerala&apos;s dedicated student marketplace. Buy, sell, and swap college textbooks, KTU tools, calculators, and hostel essentials directly with batch-mates on campus.
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
@@ -110,7 +110,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-6 text-xs text-slate-400 gap-3">
-          <p>© {new Date().getFullYear()} CampusSwap Kerala. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} camswapus Kerala. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Link 
               to="/admin" 
