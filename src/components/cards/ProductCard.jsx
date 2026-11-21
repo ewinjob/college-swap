@@ -5,11 +5,10 @@ import { formatCurrency } from '../../utils/formatCurrency';
 
 export default function ProductCard({ product }) {
   const {
-    id = '',
-    title = '"',
-    price = "",
-    isFree = "",
-    isSwap = "",
+    title = '',
+    price = 0,
+    isFree = false,
+    isSwap = false,
     category = '',
     college = '',
     condition = '',
@@ -19,15 +18,16 @@ export default function ProductCard({ product }) {
     postedTime = ''
   } = product || {};
 
+  const productId = product?._id || product?.id || '1';
   const whatsappUrl = getWhatsAppLink(sellerPhone, title, college);
 
   return (
     <div className="group relative flex flex-col rounded-2xl border border-slate-200/90 bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-sky-300 hover:shadow-xl hover:shadow-sky-500/10 overflow-hidden">
       
       {/* Image Container */}
-      <Link to={`/products/${id}`} className="relative block aspect-4/3 w-full overflow-hidden bg-slate-100">
+      <Link to={`/products/${productId}`} className="relative block aspect-4/3 w-full overflow-hidden bg-slate-100">
         <img
-          src={image}
+          src={image || 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=600&q=80'}
           alt={title}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
@@ -35,7 +35,6 @@ export default function ProductCard({ product }) {
         
         {/* Floating Badges */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-          {/* Price / Swap Badge */}
           <span className={`rounded-full px-2.5 py-1 text-xs font-bold shadow-sm backdrop-blur-md ${
             isFree 
               ? 'bg-sky-500 text-white' 
@@ -49,11 +48,13 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Condition Badge */}
-        <div className="absolute top-3 right-3">
-          <span className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-xs backdrop-blur-md border border-slate-100">
-            {condition}
-          </span>
-        </div>
+        {condition && (
+          <div className="absolute top-3 right-3">
+            <span className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-xs backdrop-blur-md border border-slate-100">
+              {condition}
+            </span>
+          </div>
+        )}
       </Link>
 
       {/* Card Body */}
@@ -68,7 +69,7 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Title */}
-        <Link to={`/products/${id}`} className="group-hover:text-sky-600 transition">
+        <Link to={`/products/${productId}`} className="group-hover:text-sky-600 transition">
           <h3 className="line-clamp-2 font-bold text-slate-900 text-base leading-snug mb-2">
             {title}
           </h3>
@@ -84,9 +85,9 @@ export default function ProductCard({ product }) {
         <div className="mt-auto flex items-center justify-between pt-3 border-t border-slate-100">
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-full bg-sky-100 text-sky-800 font-bold text-xs flex items-center justify-center">
-              {sellerName.charAt(0)}
+              {sellerName ? sellerName.charAt(0) : 'S'}
             </div>
-            <span className="text-xs font-medium text-slate-700 truncate max-w-90px">
+            <span className="text-xs font-medium text-slate-700 truncate max-w-[90px]">
               {sellerName}
             </span>
           </div>

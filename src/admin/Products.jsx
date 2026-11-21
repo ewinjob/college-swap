@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaTrash, FaCheckCircle, FaSearch, FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { showConfirmAlert, showToast } from '../utils/alerts';
 
 export default function AdminProducts() {
   const [query, setQuery] = useState('');
@@ -12,8 +13,19 @@ export default function AdminProducts() {
     { id: '5', title: 'Hero Sprint 21-Speed Bicycle', college: 'CUSAT Kochi', price: '₹2,400', category: 'Bicycles', sellerPhone: '9633123456', status: 'Approved' }
   ]);
 
-  const handleDelete = (id) => {
-    setItems(items.filter(item => item.id !== id));
+  const handleDelete = async (id) => {
+    const confirmed = await showConfirmAlert({
+      title: 'Admin Moderation: Delete Listing?',
+      text: 'This listing will be permanently removed from the student marketplace.',
+      confirmButtonText: 'Yes, Remove Item',
+      cancelButtonText: 'Keep Item',
+      icon: 'warning'
+    });
+
+    if (confirmed) {
+      setItems(items.filter(item => item.id !== id));
+      showToast('Item removed by admin', 'success');
+    }
   };
 
   const filteredItems = items.filter(i => 

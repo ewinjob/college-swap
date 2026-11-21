@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   FaWhatsapp, 
   FaEnvelope, 
   FaMapMarkerAlt, 
   FaShieldAlt, 
-  FaCheckCircle, 
   FaArrowLeft,
   FaShareAlt,
   FaExchangeAlt,
@@ -13,22 +12,59 @@ import {
   FaClock
 } from 'react-icons/fa';
 import { ALL_PRODUCTS } from '../utils/allProducts';
+import { getProductByIdAPI } from '../services/apiService';
 import { getWhatsAppLink, getMailtoLink } from '../utils/contactSeller';
 import { formatCurrency } from '../utils/formatCurrency';
+import { showToast } from '../utils/alerts';
 import ProductCard from '../components/cards/ProductCard';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const [copied, setCopied] = useState(false);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Find the matching product from ALL_PRODUCTS by ID
-  const product = ALL_PRODUCTS.find((p) => String(p.id) === String(id));
+  // Fetch product from backend API, fallback to local mock data
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoading(true);
+      try {
+        const response = await getProductByIdAPI(id);
+        if (response && response.status === 200 && response.data) {
+          setProduct(response.data);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.log('API fetch item by ID note: checking local catalog...');
+      }
+
+      // Fallback search in ALL_PRODUCTS by id or _id
+      const fallbackItem = ALL_PRODUCTS.find(
+        (p) => String(p.id) === String(id) || String(p._id) === String(id)
+      );
+      setProduct(fallbackItem || null);
+      setLoading(false);
+    };
+
+    fetchProduct();
+  }, [id]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
+    showToast('Listing link copied to clipboard! 📋');
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-24 text-center space-y-3">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-sky-500 border-t-transparent" />
+        <p className="text-xs text-slate-500 font-medium">Loading item details from server...</p>
+      </div>
+    );
+  }
 
   // If product is not found
   if (!product) {
@@ -41,7 +77,7 @@ export default function ProductDetails() {
         </p>
         <Link
           to="/products"
-          className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-sky-500 to-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-sky-500/20 hover:from-sky-600 hover:to-blue-700 transition"
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-sky-500/20 hover:from-sky-600 hover:to-blue-700 transition"
         >
           <FaArrowLeft />
           <span>Browse All Available Campus Items</span>
@@ -61,7 +97,7 @@ export default function ProductDetails() {
 
   // Find other items from the same college or category (excluding current item)
   const relatedProducts = ALL_PRODUCTS.filter(
-    (item) => String(item.id) !== String(product.id) && 
+    (item) => String(item.id || item._id) !== String(product.id || product._id) && 
     (item.collegeId === product.collegeId || item.categoryId === product.categoryId)
   ).slice(0, 3);
 
@@ -75,14 +111,14 @@ export default function ProductDetails() {
           <span>/</span>
           <Link to="/products" className="hover:text-sky-600 font-semibold transition">Listings</Link>
           <span>/</span>
-          <span className="text-slate-400 truncate max-w-150px sm:max-w-xs">{product.category}</span>
+          <span className="text-slate-400 truncate max-w-[150px] sm:max-w-xs">{product.category}</span>
           <span>/</span>
-          <span className="font-bold text-slate-900 truncate max-w-200px">{product.title}</span>
+          <span className="font-bold text-slate-900 truncate max-w-[200px]">{product.title}</span>
         </div>
 
         <button
           onClick={handleShare}
-          className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-sky-600 bg-white border border-slate-200 px-3.5 py-1.5 rounded-lg shadow-xs hover:border-sky-300 transition"
+          className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-sky-600 bg-white border border-slate-200 px-3.5 py-1.5 rounded-lg shadow-xs hover:border-sky-300 transition cursor-pointer"
         >
           <FaShareAlt className="text-xs" />
           <span>{copied ? 'Link Copied!' : 'Share Listing'}</span>
@@ -96,7 +132,7 @@ export default function ProductDetails() {
         <div className="lg:col-span-7 space-y-5">
           
           <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md shadow-sky-500/5 relative">
-            <div className="relative aspect-4/3 w-full bg-slate-100">
+            <div className="relative aspect-[4/3] w-full bg-slate-100">
               <img
                 src={product.image}
                 alt={product.title}
@@ -238,7 +274,7 @@ export default function ProductDetails() {
               Student Seller Information
             </h3>
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-linear-to-tr from-sky-500 to-blue-600 text-white font-black text-lg flex items-center justify-center shadow-md shadow-sky-500/20 shrink-0">
+              <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 text-white font-black text-lg flex items-center justify-center shadow-md shadow-sky-500/20 shrink-0">
                 {product.sellerName ? product.sellerName.charAt(0) : 'S'}
               </div>
               <div className="overflow-hidden">
@@ -294,7 +330,7 @@ export default function ProductDetails() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {relatedProducts.map((item) => (
-              <ProductCard key={item.id} product={item} />
+              <ProductCard key={item._id || item.id} product={item} />
             ))}
           </div>
         </div>

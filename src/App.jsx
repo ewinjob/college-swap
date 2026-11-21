@@ -3,12 +3,14 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 // Layouts
 import MainLayout from './layout/MainLayout';
 import AdminLayout from './layout/AdminLayout';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Public Pages
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetails from './pages/ProductDetails';
 import AddProduct from './pages/AddProduct';
+import Profile from './pages/Profile';
 import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 
@@ -26,7 +28,22 @@ function App() {
         <Route index element={<Home />} />
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<ProductDetails />} />
-        <Route path="add-product" element={<AddProduct />} />
+        <Route 
+          path="add-product" 
+          element={
+            <ProtectedRoute>
+              <AddProduct />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="profile" 
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="auth" element={<Auth />} />
       </Route>
 

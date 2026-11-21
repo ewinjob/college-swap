@@ -17,7 +17,7 @@ export default function Footer() {
                 <FaGraduationCap className="text-lg" />
               </span>
                <div className="font-bold text-xl tracking-tight text-slate-900 leading-none">
-               cam<span className="text-sky-500">swa</span>pus
+               Campus<span className="text-sky-500">Swap</span>
              </div>
             </Link>
             <p className="text-sm text-slate-500 leading-relaxed">

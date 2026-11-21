@@ -14,6 +14,7 @@ import {
 import ProductCard from '../components/cards/ProductCard';
 import { KERALA_COLLEGES } from '../constants/colleges';
 import { ALL_PRODUCTS } from '../utils/allProducts';
+import { showLoginRequiredAlert } from '../utils/alerts';
 
 const CATEGORIES = [
   { id: 'drawing-tools', label: 'Mini Drafter & Tools', count: '140+ items', icon: FaDraftingCompass, color: 'from-sky-500 to-blue-600' },
@@ -38,6 +39,14 @@ export default function Home() {
     if (searchQuery.trim()) params.append('search', searchQuery.trim());
     if (selectedCollege !== 'all') params.append('college', selectedCollege);
     navigate(`/products?${params.toString()}`);
+  };
+
+  const handlePostClick = (e) => {
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    if (!token) {
+      e.preventDefault();
+      showLoginRequiredAlert(navigate);
+    }
   };
 
   // Filter listings based on selected campus tab using ALL_PRODUCTS from utility
@@ -307,6 +316,7 @@ export default function Home() {
             <p className="text-slate-500 text-sm">No items currently listed for this campus.</p>
             <Link
               to="/add-product"
+              onClick={handlePostClick}
               className="mt-3 inline-block rounded-lg bg-sky-600 px-4 py-2 text-xs font-bold text-white hover:bg-sky-700"
             >
               Be the first to post for this campus!
@@ -382,6 +392,7 @@ export default function Home() {
             <div className="pt-2 flex flex-wrap gap-3">
               <Link
                 to="/add-product"
+                onClick={handlePostClick}
                 className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-sky-800 shadow-md hover:bg-sky-50 transition"
               >
                 <FaPlus className="text-xs" />
