@@ -5,56 +5,45 @@ import { ITEM_CATEGORIES, ITEM_CONDITIONS } from '../constants/categories';
 import { validateListing } from '../utils/validators';
 import { addProductAPI } from '../services/apiService';
 import { showSuccessAlert, showErrorAlert, showToast, showLoginRequiredAlert } from '../utils/alerts';
-import { FaPlus, FaWhatsapp, FaCheck, FaExclamationCircle, FaCloudUploadAlt, FaTimes, FaShieldAlt } from 'react-icons/fa';
+import { FaPlus, FaWhatsapp, FaExclamationCircle, FaCloudUploadAlt, FaTimes } from 'react-icons/fa';
 
 export default function AddProduct() {
   const navigate = useNavigate();
-  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
   const [uploadMode, setUploadMode] = useState('file'); // 'file' or 'url'
 
-  const [formData, setFormData] = useState({
-    title: '',
-    category: 'books',
-    categoryId: 'books',
-    college: 'College of Engineering Trivandrum (CET)',
-    collegeId: 'cet',
-    condition: 'Like New / Barely Used',
-    dealType: 'sell', // sell, swap, free
-    price: '',
-    description: '',
-    imageUrl: '',
-    sellerName: '',
-    sellerPhone: '',
-    sellerEmail: '',
-    meetupLocation: ''
+  const [formData, setFormData] = useState(() => {
+    let saved = {};
+    try {
+      saved = JSON.parse(localStorage.getItem('currentUser') || '{}') || {};
+    } catch {
+      saved = {};
+    }
+    return {
+      title: '',
+      category: 'KTU Textbooks & Notes',
+      categoryId: 'books',
+      college: saved.college || 'College of Engineering Trivandrum (CET)',
+      collegeId: saved.collegeId || 'cet',
+      condition: 'Like New / Barely Used',
+      dealType: 'sell', // sell, swap, free
+      price: '',
+      description: '',
+      imageUrl: '',
+      sellerName: saved.name || '',
+      sellerPhone: saved.phone || '',
+      sellerEmail: saved.email || '',
+      meetupLocation: ''
+    };
   });
 
-  // Check login and autofill student credentials
+  // Check login on mount
   useEffect(() => {
     const token = sessionStorage.getItem('token') || localStorage.getItem('token');
     if (!token) {
       showLoginRequiredAlert(navigate);
-      return;
-    }
-
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      try {
-        const u = JSON.parse(savedUser);
-        setFormData(prev => ({
-          ...prev,
-          sellerName: u.name || prev.sellerName,
-          sellerPhone: u.phone || prev.sellerPhone,
-          sellerEmail: u.email || prev.sellerEmail,
-          college: u.college || prev.college,
-          collegeId: u.collegeId || prev.collegeId
-        }));
-      } catch (err) {
-        console.error(err);
-      }
     }
   }, [navigate]);
 
@@ -142,21 +131,28 @@ export default function AddProduct() {
     };
 
     try {
-      await addProductAPI(payload);
-      showToast('Item posted successfully!');
-      await showSuccessAlert(
-        'Item Listed with Photo! 📸',
-        'Your listing is now live on CollegeSwap Kerala. Other campus students can now discover it and reach you on WhatsApp!'
-      );
-      navigate('/products');
+      const response = await addProductAPI(payload);
+      if (response && (response.status === 200 || response.status === 201)) {
+        showToast('Item posted successfully!');
+        await showSuccessAlert(
+          'Item Listed with Photo! 📸',
+          'Your listing is now live on CollegeSwap Kerala. Other campus students can now discover it and reach you on WhatsApp!'
+        );
+        navigate('/products');
+      }
     } catch (err) {
-      console.log('Upload saved locally or to backend server.');
-      showToast('Saved to catalog!');
-      await showSuccessAlert(
-        'Item Listed! 🚀',
-        'Your item has been posted to the campus catalog.'
-      );
-      navigate('/products');
+      const status = err?.response?.status;
+      const msg =
+        err?.response?.data?.error ||
+        (err?.request
+          ? 'Cannot reach backend server on port 5000. Please ensure the server is running.'
+          : 'Failed to post your listing. Please try again.');
+
+      if (status === 401) {
+        showLoginRequiredAlert(navigate);
+      } else {
+        showErrorAlert('Upload Failed', msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -178,18 +174,7 @@ export default function AddProduct() {
         </p>
       </div>
 
-      {submitted ? (
-        <div className="bg-white p-10 rounded-3xl border border-sky-200 text-center shadow-lg shadow-sky-500/10 space-y-4 max-w-md mx-auto">
-          <div className="h-16 w-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-2xl mx-auto">
-            <FaCheck />
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900">Item Listed with Photo!</h2>
-          <p className="text-sm text-slate-500">
-            Your item photo has been saved and is now visible on the campus explore feed.
-          </p>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} noValidate className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-sm space-y-8">
+      <form onSubmit={handleSubmit} noValidate className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-sm space-y-8">
           
           {/* General Form Error Notice */}
           {Object.keys(errors).length > 0 && (
@@ -545,8 +530,7 @@ export default function AddProduct() {
             </button>
           </div>
 
-        </form>
-      )}
+      </form>
 
     </div>
   );

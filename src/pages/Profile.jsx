@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  FaUser, 
-  FaGraduationCap, 
   FaWhatsapp, 
   FaEnvelope, 
   FaMapMarkerAlt, 
@@ -16,19 +14,26 @@ import {
   FaShieldAlt
 } from 'react-icons/fa';
 import { KERALA_COLLEGES } from '../constants/colleges';
-import { ALL_PRODUCTS } from '../utils/allProducts';
 import { formatCurrency } from '../utils/formatCurrency';
 import { getWhatsAppLink } from '../utils/contactSeller';
-import { getProfileAPI, getUserProductsAPI, deleteProductAPI } from '../services/apiService';
-import { showConfirmAlert, showToast, showSuccessAlert } from '../utils/alerts';
+import {
+  getProfileAPI,
+  updateProfileAPI,
+  getUserProductsAPI,
+  getAllProductsAPI,
+  updateProductStatusAPI,
+  deleteProductAPI
+} from '../services/apiService';
+import { showConfirmAlert, showToast, showErrorAlert } from '../utils/alerts';
 
 export default function Profile() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('listings'); // 'listings', 'saved'
   const [isEditing, setIsEditing] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
 
-  // Default / Logged-in student profile from localStorage or fallback
+  // Logged-in student profile from localStorage (hydrated from backend /api/profile)
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('currentUser');
     if (saved) {
@@ -39,98 +44,98 @@ export default function Profile() {
       }
     }
     return {
-      name: 'Arjun S. Kumar',
-      email: 'arjun.mec@gmail.com',
-      phone: '9847123456',
-      college: 'Govt. Model Engineering College (MEC)',
-      collegeId: 'mec',
-      branch: 'B.Tech Mechanical Engineering',
-      semester: 'Semester 5',
-      verified: true
+      name: '',
+      email: '',
+      phone: '',
+      college: '',
+      collegeId: 'cet',
+      branch: '',
+      semester: ''
     };
   });
 
   const [editForm, setEditForm] = useState({ ...user });
+  const [myListings, setMyListings] = useState([]);
+  const [savedItems, setSavedItems] = useState([]);
 
-  // My listings state
-  const [myListings, setMyListings] = useState([
-    {
-      id: '1',
-      title: 'Omega Mini Drafter with Canvas Bag + Clips',
-      price: 380,
-      isFree: false,
-      isSwap: false,
-      category: 'Drawing Tools',
-      college: 'Govt. Model Engineering College (MEC)',
-      condition: 'Like New',
-      image: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=600&q=80',
-      status: 'Active',
-      postedTime: '1 hr ago'
-    },
-    {
-      id: '7',
-      title: 'Complete KTU Engineering Mechanics Solved Papers (2019 Scheme)',
-      price: 0,
-      isFree: true,
-      isSwap: false,
-      category: 'KTU Books',
-      college: 'Govt. Model Engineering College (MEC)',
-      condition: 'Used (Good Condition)',
-      image: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=600&q=80',
-      status: 'Active',
-      postedTime: '5 hrs ago'
-    }
-  ]);
-
-  // Saved / Wishlist items
-  const [savedItems, setSavedItems] = useState([
-    ALL_PRODUCTS[1], // Casio fx-991EX
-    ALL_PRODUCTS[2]  // KTU S3 CS Books
-  ]);
-
-  // Fetch verified profile & user listings from backend if JWT exists
+  // Fetch verified profile, user's own listings, and saved bookmarks from backend
   useEffect(() => {
     const fetchUserData = async () => {
       const token = sessionStorage.getItem('token') || localStorage.getItem('token');
-      if (!token) return;
-
-      try {
-        const profileRes = await getProfileAPI();
-        if (profileRes && profileRes.data) {
-          setUser(prev => ({ ...prev, ...profileRes.data }));
-          setEditForm(prev => ({ ...prev, ...profileRes.data }));
-        }
-      } catch (err) {
-        console.log('Using local profile data.');
+      if (!token) {
+        setLoadingData(false);
+        return;
       }
 
+      setLoadingData(true);
       try {
-        const listingsRes = await getUserProductsAPI();
-        if (listingsRes && listingsRes.data && listingsRes.data.length > 0) {
-          setMyListings(listingsRes.data);
+        const [profileRes, listingsRes, allProductsRes] = await Promise.allSettled([
+          getProfileAPI(),
+          getUserProductsAPI(),
+          getAllProductsAPI()
+        ]);
+
+        if (profileRes.status === 'fulfilled' && profileRes.value?.data) {
+          const freshUser = profileRes.value.data;
+          setUser(freshUser);
+          setEditForm(freshUser);
+          localStorage.setItem('currentUser', JSON.stringify(freshUser));
+        }
+
+        if (listingsRes.status === 'fulfilled' && Array.isArray(listingsRes.value?.data)) {
+          setMyListings(listingsRes.value.data);
+        }
+
+        if (allProductsRes.status === 'fulfilled' && Array.isArray(allProductsRes.value?.data)) {
+          let savedIds = [];
+          try {
+            savedIds = JSON.parse(localStorage.getItem('savedProductIds') || '[]');
+          } catch {
+            savedIds = [];
+          }
+          const matchedSaved = allProductsRes.value.data.filter(item =>
+            savedIds.includes(String(item._id || item.id))
+          );
+          setSavedItems(matchedSaved);
         }
       } catch (err) {
-        console.log('Using local user listings.');
+        console.error('Failed to load profile data:', err);
+      } finally {
+        setLoadingData(false);
       }
     };
 
     fetchUserData();
   }, []);
 
-  const handleProfileUpdate = (e) => {
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
-    setUser(editForm);
-    localStorage.setItem('currentUser', JSON.stringify(editForm));
-    setIsEditing(false);
-    setSavedSuccess(true);
-    showToast('Profile updated successfully!');
-    setTimeout(() => setSavedSuccess(false), 3000);
+    try {
+      const res = await updateProfileAPI({
+        name: editForm.name,
+        phone: editForm.phone,
+        college: editForm.college,
+        collegeId: editForm.collegeId,
+        branch: editForm.branch,
+        semester: editForm.semester
+      });
+      const updated = res?.data?.user || editForm;
+      setUser(updated);
+      setEditForm(updated);
+      localStorage.setItem('currentUser', JSON.stringify(updated));
+      setIsEditing(false);
+      setSavedSuccess(true);
+      showToast('Profile updated in database!');
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch (err) {
+      showErrorAlert('Update Failed', err?.response?.data?.error || 'Could not update profile.');
+    }
   };
 
   const handleDeleteListing = async (id) => {
     const confirmed = await showConfirmAlert({
       title: 'Delete this item listing?',
-      text: 'This item will be removed from the college swap catalog.',
+      text: 'This item will be permanently removed from the college swap catalog.',
       confirmButtonText: 'Yes, Delete',
       cancelButtonText: 'Cancel',
       icon: 'warning'
@@ -140,31 +145,37 @@ export default function Profile() {
 
     try {
       await deleteProductAPI(id);
+      setMyListings(prev => prev.filter(item => (item._id || item.id) !== id));
+      showToast('Listing deleted successfully', 'success');
     } catch (err) {
-      console.log('Local delete note');
+      showErrorAlert('Delete Failed', err?.response?.data?.error || 'Could not delete listing.');
     }
-    setMyListings(prev => prev.filter(item => (item._id || item.id) !== id));
-    showToast('Listing deleted successfully', 'success');
   };
 
-  const handleToggleSold = (id) => {
-    let newStatus = '';
-    setMyListings(prev => prev.map(item => {
-      const itemId = item._id || item.id;
-      if (itemId === id) {
-        newStatus = item.status === 'Sold' ? 'Active' : 'Sold';
-        return {
-          ...item,
-          status: newStatus
-        };
-      }
-      return item;
-    }));
-    showToast(`Listing marked as ${newStatus || 'Updated'}`, 'info');
+  const handleToggleSold = async (id) => {
+    const current = myListings.find(item => (item._id || item.id) === id);
+    const newStatus = current?.status === 'Sold' ? 'Active' : 'Sold';
+    try {
+      await updateProductStatusAPI(id, newStatus);
+      setMyListings(prev => prev.map(item => {
+        const itemId = item._id || item.id;
+        return itemId === id ? { ...item, status: newStatus } : item;
+      }));
+      showToast(`Listing marked as ${newStatus}`, 'info');
+    } catch (err) {
+      showErrorAlert('Update Failed', err?.response?.data?.error || 'Could not update listing status.');
+    }
   };
 
   const handleRemoveSaved = (id) => {
     setSavedItems(prev => prev.filter(item => (item._id || item.id) !== id));
+    try {
+      const savedIds = JSON.parse(localStorage.getItem('savedProductIds') || '[]');
+      const updatedIds = savedIds.filter(x => x !== String(id));
+      localStorage.setItem('savedProductIds', JSON.stringify(updatedIds));
+    } catch {
+      // ignore storage error
+    }
     showToast('Removed from saved items', 'info');
   };
 
@@ -200,9 +211,17 @@ export default function Profile() {
           {/* Avatar & Details */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
             <div className="relative">
-              <div className="h-20 w-20 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-sky-500/20">
-                {user.name ? user.name.charAt(0) : 'S'}
-              </div>
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name || 'Student'}
+                  className="h-20 w-20 rounded-2xl object-cover border-2 border-sky-200 shadow-lg shadow-sky-500/20"
+                />
+              ) : (
+                <div className="h-20 w-20 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-sky-500/20">
+                  {user.name ? user.name.charAt(0) : 'S'}
+                </div>
+              )}
               <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white text-xs shadow-xs" title="Verified Campus Student">
                 ✓
               </span>
@@ -389,7 +408,13 @@ export default function Profile() {
       </div>
 
       {/* 3. Tab Contents */}
-
+      {loadingData ? (
+        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-sky-500 border-t-transparent" />
+          <p className="text-xs text-slate-500 font-medium">Loading your campus profile & listings...</p>
+        </div>
+      ) : (
+        <>
       {/* TAB 1: My Uploaded Listings */}
       {activeTab === 'listings' && (
         <div className="space-y-4">
@@ -534,6 +559,8 @@ export default function Profile() {
             </div>
           )}
         </div>
+      )}
+        </>
       )}
 
     </div>

@@ -1,24 +1,30 @@
-import { useState } from 'react';
-import { FaUserCheck, FaTrash, FaSearch, FaShieldAlt } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaSearch } from 'react-icons/fa';
+import { getAllUsersAPI } from '../services/apiService';
 
 export default function Users() {
   const [query, setQuery] = useState('');
-  const [students, setStudents] = useState([
-    { id: '1', name: 'Arjun S. Kumar', email: 'arjun.mec@gmail.com', college: 'Govt. Model Engineering College (MEC)', branch: 'Mechanical S5', listings: 3, verified: true },
-    { id: '2', name: 'Sneha Nair', email: 'sneha.cet@gmail.com', college: 'College of Engineering Trivandrum (CET)', branch: 'ECE S3', listings: 2, verified: true },
-    { id: '3', name: 'Fahad Mohammed', email: 'fahad.tkm@gmail.com', college: 'TKM College of Engineering', branch: 'CSE S7', listings: 4, verified: true },
-    { id: '4', name: 'Ananya Pradeep', email: 'ananya.gec@gmail.com', college: 'Govt. Engineering College Thrissur', branch: 'Civil S3', listings: 1, verified: false },
-    { id: '5', name: 'Vishnu Das', email: 'vishnu.cusat@gmail.com', college: 'CUSAT Kochi', branch: 'Safety & Fire S5', listings: 2, verified: true }
-  ]);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDelete = (id) => {
-    setStudents(students.filter(s => s.id !== id));
-  };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await getAllUsersAPI();
+        if (res?.data) setStudents(res.data);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const filteredStudents = students.filter(s => 
-    s.name.toLowerCase().includes(query.toLowerCase()) || 
-    s.college.toLowerCase().includes(query.toLowerCase()) ||
-    s.email.toLowerCase().includes(query.toLowerCase())
+    (s.name || '').toLowerCase().includes(query.toLowerCase()) || 
+    (s.college || '').toLowerCase().includes(query.toLowerCase()) ||
+    (s.email || '').toLowerCase().includes(query.toLowerCase())
   );
 
   return (
@@ -51,41 +57,33 @@ export default function Users() {
               <th className="pb-3 font-bold">Email</th>
               <th className="pb-3 font-bold">Campus</th>
               <th className="pb-3 font-bold">Branch & Sem</th>
-              <th className="pb-3 font-bold">Active Listings</th>
+              <th className="pb-3 font-bold">Auth Type</th>
               <th className="pb-3 font-bold">Status</th>
-              <th className="pb-3 font-bold text-right">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60 text-slate-300">
-            {filteredStudents.map(student => (
-              <tr key={student.id} className="hover:bg-slate-900/60 transition">
+            {loading ? (
+              <tr><td colSpan="6" className="py-6 text-center text-slate-400">Loading students from database...</td></tr>
+            ) : filteredStudents.map(student => (
+              <tr key={student._id || student.id} className="hover:bg-slate-900/60 transition">
                 <td className="py-3.5 font-bold text-white flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-full bg-sky-900 text-sky-300 flex items-center justify-center font-bold text-xs">
-                    {student.name.charAt(0)}
-                  </div>
+                  {student.avatar ? (
+                    <img src={student.avatar} alt={student.name} className="h-7 w-7 rounded-full object-cover" />
+                  ) : (
+                    <div className="h-7 w-7 rounded-full bg-sky-900 text-sky-300 flex items-center justify-center font-bold text-xs">
+                      {(student.name || 'S').charAt(0)}
+                    </div>
+                  )}
                   <span>{student.name}</span>
                 </td>
                 <td className="py-3.5 text-slate-400">{student.email}</td>
-                <td className="py-3.5 text-slate-400 max-w-[180px] truncate">📍 {student.college}</td>
-                <td className="py-3.5 text-slate-300">{student.branch}</td>
-                <td className="py-3.5 font-bold text-sky-400">{student.listings} items</td>
+                <td className="py-3.5 text-slate-400 max-w-[180px] truncate">📍 {student.college || 'Not set'}</td>
+                <td className="py-3.5 text-slate-300">{[student.branch, student.semester].filter(Boolean).join(' • ') || '—'}</td>
+                <td className="py-3.5 font-bold text-sky-400">{student.isGoogleUser ? 'Google OAuth' : 'Email / JWT'}</td>
                 <td className="py-3.5">
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold border ${
-                    student.verified 
-                      ? 'bg-sky-950 text-sky-400 border-sky-800' 
-                      : 'bg-amber-950 text-amber-400 border-amber-800'
-                  }`}>
-                    {student.verified ? 'Verified Student' : 'Pending Verification'}
+                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold border bg-sky-950 text-sky-400 border-sky-800">
+                    Verified Student
                   </span>
-                </td>
-                <td className="py-3.5 text-right">
-                  <button
-                    onClick={() => handleDelete(student.id)}
-                    className="rounded-lg bg-red-950/60 hover:bg-red-900 text-red-400 p-2 transition"
-                    title="Remove user"
-                  >
-                    <FaTrash className="text-xs" />
-                  </button>
                 </td>
               </tr>
             ))}

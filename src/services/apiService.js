@@ -6,7 +6,7 @@ import axiosService from '../api/axiosService';
 
 // Add / Upload a new swap item with photo (Protected by JWT)
 export const addProductAPI = async (reqBody) => {
-  return await axiosService('POST', '/api/products', reqBody, {
+  return await axiosService.post('/api/products', reqBody, {
     'Content-Type': 'application/json'
   });
 };
@@ -18,22 +18,27 @@ export const getAllProductsAPI = async (search = '', college = 'all') => {
   if (college && college !== 'all') queryParams.append('college', college);
 
   const url = queryParams.toString() ? `/api/products?${queryParams.toString()}` : '/api/products';
-  return await axiosService('GET', url, '', {});
+  return await axiosService.get(url);
 };
 
 // Get single product details by MongoDB _id (Public)
 export const getProductByIdAPI = async (id) => {
-  return await axiosService('GET', `/api/products/${id}`, '', {});
+  return await axiosService.get(`/api/products/${id}`);
 };
 
 // Get current logged-in student's own uploaded listings (Protected by JWT)
 export const getUserProductsAPI = async () => {
-  return await axiosService('GET', '/api/user-products', '', {});
+  return await axiosService.get('/api/user-products');
+};
+
+// Update listing status (Active / Sold) (Protected by JWT)
+export const updateProductStatusAPI = async (id, status) => {
+  return await axiosService.patch(`/api/products/${id}`, { status });
 };
 
 // Delete a product by id (Protected by JWT / Admin action)
 export const deleteProductAPI = async (id) => {
-  return await axiosService('DELETE', `/api/products/${id}`, {}, {});
+  return await axiosService.delete(`/api/products/${id}`);
 };
 
 
@@ -43,31 +48,36 @@ export const deleteProductAPI = async (id) => {
 
 // Register student (Returns user profile + JWT token)
 export const registerAPI = async (reqBody) => {
-  return await axiosService('POST', '/api/register', reqBody, {
+  return await axiosService.post('/api/register', reqBody, {
     'Content-Type': 'application/json'
   });
 };
 
 // Login student (Returns user profile + JWT token)
 export const loginAPI = async (reqBody) => {
-  return await axiosService('POST', '/api/login', reqBody, {
+  return await axiosService.post('/api/login', reqBody, {
     'Content-Type': 'application/json'
   });
 };
 
 // Google OAuth Login with Profile Picture
 export const googleLoginAPI = async (reqBody) => {
-  return await axiosService('POST', '/api/google-login', reqBody, {
+  return await axiosService.post('/api/google-login', reqBody, {
     'Content-Type': 'application/json'
   });
 };
 
 // Get authenticated student profile (Protected by JWT)
 export const getProfileAPI = async () => {
-  return await axiosService('GET', '/api/profile', '', {});
+  return await axiosService.get('/api/profile');
+};
+
+// Update authenticated student profile (Protected by JWT)
+export const updateProfileAPI = async (reqBody) => {
+  return await axiosService.put('/api/profile', reqBody);
 };
 
 // Get all students (Admin portal)
 export const getAllUsersAPI = async () => {
-  return await axiosService('GET', '/api/users', '', {});
+  return await axiosService.get('/api/users');
 };

@@ -1,17 +1,28 @@
-import { useState } from 'react';
-import { FaTrash, FaCheckCircle, FaSearch, FaPlus } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaTrash, FaSearch, FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { showConfirmAlert, showToast } from '../utils/alerts';
+import { getAllProductsAPI, deleteProductAPI } from '../services/apiService';
+import { formatCurrency } from '../utils/formatCurrency';
+import { showConfirmAlert, showToast, showErrorAlert } from '../utils/alerts';
 
 export default function AdminProducts() {
   const [query, setQuery] = useState('');
-  const [items, setItems] = useState([
-    { id: '1', title: 'Omega Mini Drafter with Bag', college: 'Govt. Model Engineering College (MEC)', price: '₹380', category: 'Drawing Tools', sellerPhone: '9847123456', status: 'Approved' },
-    { id: '2', title: 'Casio fx-991EX Calculator', college: 'College of Engineering Trivandrum (CET)', price: '₹650', category: 'Calculators', sellerPhone: '9447123456', status: 'Approved' },
-    { id: '3', title: 'KTU S3 CS Core Books Bundle', college: 'TKM College of Engineering', price: 'Swap Only', category: 'Books', sellerPhone: '9895123456', status: 'Approved' },
-    { id: '4', title: 'White Lab Apron (Size L)', college: 'Govt. Engineering College Thrissur', price: '₹150', category: 'Lab Apron', sellerPhone: '9744123456', status: 'Approved' },
-    { id: '5', title: 'Hero Sprint 21-Speed Bicycle', college: 'CUSAT Kochi', price: '₹2,400', category: 'Bicycles', sellerPhone: '9633123456', status: 'Approved' }
-  ]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const res = await getAllProductsAPI();
+        if (res?.data) setItems(res.data);
+      } catch (err) {
+        console.error('Failed to fetch admin products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItems();
+  }, []);
 
   const handleDelete = async (id) => {
     const confirmed = await showConfirmAlert({
@@ -23,14 +34,19 @@ export default function AdminProducts() {
     });
 
     if (confirmed) {
-      setItems(items.filter(item => item.id !== id));
-      showToast('Item removed by admin', 'success');
+      try {
+        await deleteProductAPI(id);
+        setItems(prev => prev.filter(item => (item._id || item.id) !== id));
+        showToast('Item removed by admin', 'success');
+      } catch (err) {
+        showErrorAlert('Delete Failed', err?.response?.data?.error || 'Sign in first to delete listings.');
+      }
     }
   };
 
   const filteredItems = items.filter(i => 
-    i.title.toLowerCase().includes(query.toLowerCase()) || 
-    i.college.toLowerCase().includes(query.toLowerCase())
+    (i.title || '').toLowerCase().includes(query.toLowerCase()) || 
+    (i.college || '').toLowerCase().includes(query.toLowerCase())
   );
 
   return (
@@ -76,29 +92,34 @@ export default function AdminProducts() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60 text-slate-300">
-            {filteredItems.map(item => (
-              <tr key={item.id} className="hover:bg-slate-900/60 transition">
+            {loading ? (
+              <tr><td colSpan="7" className="py-6 text-center text-slate-400">Loading listings from database...</td></tr>
+            ) : filteredItems.map(item => {
+              const itemId = item._id || item.id;
+              return (
+              <tr key={itemId} className="hover:bg-slate-900/60 transition">
                 <td className="py-3.5 font-bold text-white max-w-200px truncate">{item.title}</td>
                 <td className="py-3.5 text-slate-400">{item.category}</td>
                 <td className="py-3.5 text-slate-400 max-w-160px truncate">📍 {item.college}</td>
-                <td className="py-3.5 font-bold text-emerald-400">{item.price}</td>
+                <td className="py-3.5 font-bold text-emerald-400">{formatCurrency(item.price, item.isFree, item.isSwap)}</td>
                 <td className="py-3.5 text-slate-300 font-mono text-[11px]">+91 {item.sellerPhone}</td>
                 <td className="py-3.5">
                   <span className="rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 text-[10px] font-bold">
-                    {item.status}
+                    {item.status || 'Active'}
                   </span>
                 </td>
                 <td className="py-3.5 text-right">
                   <button
-                    onClick={() => handleDelete(item.id)}
-                    className="rounded-lg bg-red-950/60 hover:bg-red-900 text-red-400 p-2 transition"
+                    onClick={() => handleDelete(itemId)}
+                    className="rounded-lg bg-red-950/60 hover:bg-red-900 text-red-400 p-2 transition cursor-pointer"
                     title="Delete item"
                   >
                     <FaTrash className="text-xs" />
                   </button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

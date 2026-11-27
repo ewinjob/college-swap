@@ -8,27 +8,24 @@ import { showLoginRequiredAlert, showConfirmAlert, showToast } from "../../utils
 export default function Navbar({ selectedCollege, onSelectCollege }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [, setAuthVersion] = useState(0);
   const navigate = useNavigate();
-  const location = useLocation();
+  useLocation(); // Re-render Navbar on route changes so auth state stays fresh
 
-  // Sync token and user status on location change
-  useEffect(() => {
-    const savedToken = sessionStorage.getItem('token') || localStorage.getItem('token');
+  const token = sessionStorage.getItem('token') || localStorage.getItem('token') || null;
+  let user = null;
+  try {
     const savedUser = localStorage.getItem('currentUser');
-    
-    setToken(savedToken || null);
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (err) {
-        console.error(err);
-      }
-    } else {
-      setUser(null);
-    }
-  }, [location.pathname]);
+    if (savedUser) user = JSON.parse(savedUser);
+  } catch {
+    user = null;
+  }
+
+  useEffect(() => {
+    const syncAuth = () => setAuthVersion((v) => v + 1);
+    window.addEventListener('storage', syncAuth);
+    return () => window.removeEventListener('storage', syncAuth);
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -59,8 +56,7 @@ export default function Navbar({ selectedCollege, onSelectCollege }) {
       sessionStorage.removeItem('token');
       localStorage.removeItem('token');
       localStorage.removeItem('currentUser');
-      setToken(null);
-      setUser(null);
+      setAuthVersion((v) => v + 1);
       showToast('Logged out successfully', 'info');
       navigate('/');
     }
@@ -91,7 +87,11 @@ export default function Navbar({ selectedCollege, onSelectCollege }) {
             <div className="relative">
               <select
                 value={selectedCollege || 'all'}
-                onChange={(e) => onSelectCollege && onSelectCollege(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  onSelectCollege && onSelectCollege(val);
+                  navigate(val === 'all' ? '/products' : `/products?college=${encodeURIComponent(val)}`);
+                }}
                 className="appearance-none rounded-full border border-sky-200 bg-sky-50/70 py-1.5 pl-3.5 pr-8 text-xs font-bold text-sky-900 shadow-xs outline-none hover:bg-sky-100/80 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 transition cursor-pointer"
               >
                 {KERALA_COLLEGES.map((c) => (

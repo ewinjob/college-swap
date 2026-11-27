@@ -9,10 +9,11 @@ import {
   FaShareAlt,
   FaExchangeAlt,
   FaTag,
-  FaClock
+  FaClock,
+  FaBookmark,
+  FaRegBookmark
 } from 'react-icons/fa';
-import { ALL_PRODUCTS } from '../utils/allProducts';
-import { getProductByIdAPI } from '../services/apiService';
+import { getProductByIdAPI, getAllProductsAPI } from '../services/apiService';
 import { getWhatsAppLink, getMailtoLink } from '../utils/contactSeller';
 import { formatCurrency } from '../utils/formatCurrency';
 import { showToast } from '../utils/alerts';
@@ -22,33 +23,76 @@ export default function ProductDetails() {
   const { id } = useParams();
   const [copied, setCopied] = useState(false);
   const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
 
-  // Fetch product from backend API, fallback to local mock data
+  // Fetch product & related items from backend API
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
         const response = await getProductByIdAPI(id);
         if (response && response.status === 200 && response.data) {
-          setProduct(response.data);
-          setLoading(false);
-          return;
+          const item = response.data;
+          setProduct(item);
+
+          // Check bookmark status
+          try {
+            const savedIds = JSON.parse(localStorage.getItem('savedProductIds') || '[]');
+            setIsSaved(savedIds.includes(String(item._id || item.id)));
+          } catch {
+            setIsSaved(false);
+          }
+
+          // Fetch related items from backend
+          try {
+            const allRes = await getAllProductsAPI();
+            if (allRes && allRes.data) {
+              const related = allRes.data.filter(
+                (p) => String(p._id || p.id) !== String(item._id || item.id) &&
+                (p.collegeId === item.collegeId || p.categoryId === item.categoryId)
+              ).slice(0, 3);
+              setRelatedProducts(related);
+            }
+          } catch {
+            setRelatedProducts([]);
+          }
+        } else {
+          setProduct(null);
         }
       } catch (err) {
-        console.log('API fetch item by ID note: checking local catalog...');
+        console.error('Failed to fetch product by ID:', err);
+        setProduct(null);
+      } finally {
+        setLoading(false);
       }
-
-      // Fallback search in ALL_PRODUCTS by id or _id
-      const fallbackItem = ALL_PRODUCTS.find(
-        (p) => String(p.id) === String(id) || String(p._id) === String(id)
-      );
-      setProduct(fallbackItem || null);
-      setLoading(false);
     };
 
     fetchProduct();
   }, [id]);
+
+  const handleToggleSave = () => {
+    if (!product) return;
+    const itemId = String(product._id || product.id);
+    let savedIds;
+    try {
+      savedIds = JSON.parse(localStorage.getItem('savedProductIds') || '[]');
+    } catch {
+      savedIds = [];
+    }
+
+    if (savedIds.includes(itemId)) {
+      savedIds = savedIds.filter(x => x !== itemId);
+      setIsSaved(false);
+      showToast('Removed from saved items', 'info');
+    } else {
+      savedIds.push(itemId);
+      setIsSaved(true);
+      showToast('Saved to your bookmarks! 🔖');
+    }
+    localStorage.setItem('savedProductIds', JSON.stringify(savedIds));
+  };
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -95,12 +139,6 @@ export default function ProductDetails() {
   const whatsappUrl = getWhatsAppLink(product.sellerPhone, product.title, product.college);
   const emailUrl = getMailtoLink(sellerEmail, product.title, product.college);
 
-  // Find other items from the same college or category (excluding current item)
-  const relatedProducts = ALL_PRODUCTS.filter(
-    (item) => String(item.id || item._id) !== String(product.id || product._id) && 
-    (item.collegeId === product.collegeId || item.categoryId === product.categoryId)
-  ).slice(0, 3);
-
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-10">
       
@@ -116,13 +154,27 @@ export default function ProductDetails() {
           <span className="font-bold text-slate-900 truncate max-w-[200px]">{product.title}</span>
         </div>
 
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-sky-600 bg-white border border-slate-200 px-3.5 py-1.5 rounded-lg shadow-xs hover:border-sky-300 transition cursor-pointer"
-        >
-          <FaShareAlt className="text-xs" />
-          <span>{copied ? 'Link Copied!' : 'Share Listing'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleToggleSave}
+            className={`flex items-center gap-1.5 text-xs font-semibold border px-3.5 py-1.5 rounded-lg shadow-xs transition cursor-pointer ${
+              isSaved
+                ? 'bg-sky-50 border-sky-300 text-sky-700'
+                : 'bg-white border-slate-200 text-slate-700 hover:text-sky-600 hover:border-sky-300'
+            }`}
+          >
+            {isSaved ? <FaBookmark className="text-xs text-sky-600" /> : <FaRegBookmark className="text-xs" />}
+            <span>{isSaved ? 'Saved' : 'Save'}</span>
+          </button>
+
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-sky-600 bg-white border border-slate-200 px-3.5 py-1.5 rounded-lg shadow-xs hover:border-sky-300 transition cursor-pointer"
+          >
+            <FaShareAlt className="text-xs" />
+            <span>{copied ? 'Link Copied!' : 'Share Listing'}</span>
+          </button>
+        </div>
       </div>
 
       {/* 2. Main Product View Section (2-Column Grid) */}

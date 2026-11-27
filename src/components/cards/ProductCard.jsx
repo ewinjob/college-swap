@@ -15,7 +15,8 @@ export default function ProductCard({ product }) {
     image = '',
     sellerName = '',
     sellerPhone = '',
-    postedTime = ''
+    postedTime = '',
+    status = 'Active'
   } = product || {};
 
   const productId = product?._id || product?.id || '1';
@@ -45,6 +46,11 @@ export default function ProductCard({ product }) {
             {isSwap && <FaExchangeAlt className="inline mr-1 text-[10px]" />}
             {formatCurrency(price, isFree, isSwap)}
           </span>
+          {status === 'Sold' && (
+            <span className="rounded-full bg-red-600/90 px-2.5 py-1 text-xs font-bold text-white shadow-sm backdrop-blur-md">
+              SOLD
+            </span>
+          )}
         </div>
 
         {/* Condition Badge */}

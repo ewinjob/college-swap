@@ -1,19 +1,11 @@
-import axiosInstance from "./axiosInstance";
+import axiosInstance from './axiosInstance';
 
-const axiosService = async (httpMethod, url, reqBody,reqHeader) => {
-    try {
-        const response = await axiosInstance({
-            method: httpMethod,
-            url: url,
-            data: reqBody,
-            headers: reqHeader
-        });
-
-        return response;
-    } catch (err) {
-        console.log(err);
-        throw err;
-    }
+const axiosService = {
+  get: (url, params) => axiosInstance.get(url, params ? { params } : undefined),
+  post: (url, body, headers) => axiosInstance.post(url, body, headers ? { headers } : undefined),
+  put: (url, body, headers) => axiosInstance.put(url, body, headers ? { headers } : undefined),
+  patch: (url, body, headers) => axiosInstance.patch(url, body, headers ? { headers } : undefined),
+  delete: (url) => axiosInstance.delete(url),
 };
 
 export default axiosService;

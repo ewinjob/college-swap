@@ -1,30 +1,60 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/cards/ProductCard';
 import { KERALA_COLLEGES } from '../constants/colleges';
 import { ITEM_CATEGORIES } from '../constants/categories';
-import { ALL_PRODUCTS } from '../utils/allProducts';
+import { getAllProductsAPI } from '../services/apiService';
 import { FaSearch, FaRedo } from 'react-icons/fa';
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const urlSearch = searchParams.get('search') || '';
-  const urlCollege = searchParams.get('college') || 'all';
-  const urlCategory = searchParams.get('category') || 'all';
+  const query = searchParams.get('search') || '';
+  const selectedCollege = searchParams.get('college') || 'all';
+  const selectedCategory = searchParams.get('category') || 'all';
 
-  const [query, setQuery] = useState(urlSearch);
-  const [selectedCollege, setSelectedCollege] = useState(urlCollege);
-  const [selectedCategory, setSelectedCategory] = useState(urlCategory);
   const [filterType, setFilterType] = useState('all'); // all, sell, swap, free
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Filter products using ALL_PRODUCTS from utility
+  const updateParam = (key, value, defaultVal = '') => {
+    const next = new URLSearchParams(searchParams);
+    if (!value || value === defaultVal) {
+      next.delete(key);
+    } else {
+      next.set(key, value);
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  // Fetch all products from MongoDB via Express API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await getAllProductsAPI();
+        if (res && res.data) {
+          setProducts(res.data);
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Could not load products from server. Make sure the backend is running.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // Filter live products from MongoDB
   const filteredProducts = useMemo(() => {
-    return ALL_PRODUCTS.filter((item) => {
+    return products.filter((item) => {
       // Search matching
       const matchesQuery = query.trim() === '' || 
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.category.toLowerCase().includes(query.toLowerCase()) ||
-        item.college.toLowerCase().includes(query.toLowerCase());
+        (item.title || '').toLowerCase().includes(query.toLowerCase()) ||
+        (item.category || '').toLowerCase().includes(query.toLowerCase()) ||
+        (item.college || '').toLowerCase().includes(query.toLowerCase());
 
       // College matching
       const matchesCollege = selectedCollege === 'all' || item.collegeId === selectedCollege;
@@ -40,12 +70,9 @@ export default function Products() {
 
       return matchesQuery && matchesCollege && matchesCategory && matchesType;
     });
-  }, [query, selectedCollege, selectedCategory, filterType]);
+  }, [products, query, selectedCollege, selectedCategory, filterType]);
 
   const resetFilters = () => {
-    setQuery('');
-    setSelectedCollege('all');
-    setSelectedCategory('all');
     setFilterType('all');
     setSearchParams({});
   };
@@ -69,7 +96,7 @@ export default function Products() {
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => updateParam('search', e.target.value, '')}
             placeholder="Search items, books, tools..."
             className="w-full rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100 transition"
           />
@@ -87,7 +114,7 @@ export default function Products() {
           </label>
           <select
             value={selectedCollege}
-            onChange={(e) => setSelectedCollege(e.target.value)}
+            onChange={(e) => updateParam('college', e.target.value, 'all')}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs font-semibold text-slate-800 outline-none focus:border-sky-500"
           >
             {KERALA_COLLEGES.map(c => (
@@ -103,7 +130,7 @@ export default function Products() {
           </label>
           <select
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={(e) => updateParam('category', e.target.value, 'all')}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs font-semibold text-slate-800 outline-none focus:border-sky-500"
           >
             {ITEM_CATEGORIES.map(cat => (
@@ -162,15 +189,34 @@ export default function Products() {
         )}
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold text-center">
+          {error}
+        </div>
+      )}
+
       {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredProducts.map(product => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(n => (
+            <div key={n} className="h-80 rounded-2xl border border-slate-200 bg-white animate-pulse p-4 space-y-3">
+              <div className="h-44 rounded-xl bg-slate-200" />
+              <div className="h-4 w-3/4 rounded bg-slate-200" />
+              <div className="h-3 w-1/2 rounded bg-slate-100" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {filteredProducts.map(product => (
+            <ProductCard key={product._id || product.id} product={product} />
+          ))}
+        </div>
+      )}
 
       {/* Empty State */}
-      {filteredProducts.length === 0 && (
+      {!loading && !error && filteredProducts.length === 0 && (
         <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8 space-y-4 max-w-md mx-auto">
           <div className="text-4xl">🔍</div>
           <h3 className="font-bold text-slate-900 text-lg">No Items Found</h3>

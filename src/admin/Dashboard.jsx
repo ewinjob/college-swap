@@ -1,16 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaBoxOpen, FaGraduationCap, FaWhatsapp, FaTrash } from 'react-icons/fa';
+import { getAllProductsAPI, deleteProductAPI } from '../services/apiService';
+import { formatCurrency } from '../utils/formatCurrency';
+import { showConfirmAlert, showToast, showErrorAlert } from '../utils/alerts';
 
 export default function Dashboard() {
-  const [items, setItems] = useState([
-    { id: '1', title: 'Omega Mini Drafter with Bag', college: 'Govt. Model Engineering College (MEC)', price: '₹380', seller: 'Arjun K.', status: 'Active' },
-    { id: '2', title: 'Casio fx-991EX Calculator', college: 'College of Engineering Trivandrum (CET)', price: '₹650', seller: 'Sneha Nair', status: 'Active' },
-    { id: '3', title: 'KTU S3 CS Core Books', college: 'TKM College of Engineering', price: 'Swap', seller: 'Fahad M.', status: 'Active' },
-    { id: '4', title: 'White Lab Apron (Size L)', college: 'GEC Thrissur', price: '₹150', seller: 'Ananya P.', status: 'Active' }
-  ]);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDelete = (id) => {
-    setItems(items.filter(item => item.id !== id));
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const res = await getAllProductsAPI();
+        if (res?.data) setItems(res.data);
+      } catch (err) {
+        console.error('Failed to load admin dashboard items:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItems();
+  }, []);
+
+  const handleDelete = async (id) => {
+    const confirmed = await showConfirmAlert({
+      title: 'Delete Listing?',
+      text: 'This will permanently delete the item from MongoDB.',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel',
+      icon: 'warning'
+    });
+    if (!confirmed) return;
+
+    try {
+      await deleteProductAPI(id);
+      setItems(prev => prev.filter(item => (item._id || item.id) !== id));
+      showToast('Item deleted from database', 'success');
+    } catch (err) {
+      showErrorAlert('Delete Failed', err?.response?.data?.error || 'Sign in first to delete listings.');
+    }
   };
 
   return (
@@ -32,8 +60,8 @@ export default function Dashboard() {
             <span className="text-xs font-bold uppercase tracking-wider">Total Listings</span>
             <FaBoxOpen className="text-sky-400" />
           </div>
-          <div className="text-2xl font-black text-white">{items.length + 18}</div>
-          <div className="text-[11px] text-sky-400 font-semibold">+12 items this week</div>
+          <div className="text-2xl font-black text-white">{items.length}</div>
+          <div className="text-[11px] text-sky-400 font-semibold">Live in MongoDB</div>
         </div>
 
         <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5 space-y-2">
@@ -41,8 +69,10 @@ export default function Dashboard() {
             <span className="text-xs font-bold uppercase tracking-wider">Active Colleges</span>
             <FaGraduationCap className="text-sky-400" />
           </div>
-          <div className="text-2xl font-black text-white">16 Campuses</div>
-          <div className="text-[11px] text-slate-400">CET, MEC, TKM, CUSAT leading</div>
+          <div className="text-2xl font-black text-white">
+            {new Set(items.map(i => i.collegeId).filter(Boolean)).size} Campuses
+          </div>
+          <div className="text-[11px] text-slate-400">With active student listings</div>
         </div>
 
         <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5 space-y-2">
@@ -85,28 +115,33 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 text-slate-200">
-              {items.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-900/60 transition">
+              {loading ? (
+                <tr><td colSpan="6" className="py-6 text-center text-slate-400">Loading listings from database...</td></tr>
+              ) : items.map((item) => {
+                const itemId = item._id || item.id;
+                return (
+                <tr key={itemId} className="hover:bg-slate-900/60 transition">
                   <td className="py-3.5 font-bold text-white max-w-200px truncate">{item.title}</td>
                   <td className="py-3.5 text-slate-400 max-w-180px truncate">📍 {item.college}</td>
-                  <td className="py-3.5 font-bold text-sky-400">{item.price}</td>
-                  <td className="py-3.5 text-slate-300">{item.seller}</td>
+                  <td className="py-3.5 font-bold text-sky-400">{formatCurrency(item.price, item.isFree, item.isSwap)}</td>
+                  <td className="py-3.5 text-slate-300">{item.sellerName}</td>
                   <td className="py-3.5">
                     <span className="rounded-full bg-sky-950 text-sky-400 border border-sky-800/80 px-2 py-0.5 text-[10px] font-bold">
-                      {item.status}
+                      {item.status || 'Active'}
                     </span>
                   </td>
                   <td className="py-3.5 text-right">
                     <button
-                      onClick={() => handleDelete(item.id)}
-                      className="rounded-lg bg-red-950/60 hover:bg-red-900 text-red-400 p-1.5 transition"
+                      onClick={() => handleDelete(itemId)}
+                      className="rounded-lg bg-red-950/60 hover:bg-red-900 text-red-400 p-1.5 transition cursor-pointer"
                       title="Remove item"
                     >
                       <FaTrash className="text-xs" />
                     </button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { 
   FaSearch, 
@@ -13,7 +13,7 @@ import {
 } from 'react-icons/fa';
 import ProductCard from '../components/cards/ProductCard';
 import { KERALA_COLLEGES } from '../constants/colleges';
-import { ALL_PRODUCTS } from '../utils/allProducts';
+import { getAllProductsAPI } from '../services/apiService';
 import { showLoginRequiredAlert } from '../utils/alerts';
 
 const CATEGORIES = [
@@ -31,7 +31,26 @@ export default function Home() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTabCollege, setActiveTabCollege] = useState('all');
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoadingProducts(true);
+      try {
+        const res = await getAllProductsAPI();
+        if (res && res.data) {
+          setProducts(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load products from backend:', err);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -49,10 +68,10 @@ export default function Home() {
     }
   };
 
-  // Filter listings based on selected campus tab using ALL_PRODUCTS from utility
+  // Filter listings based on selected campus tab from live MongoDB products
   const filteredListings = activeTabCollege === 'all'
-    ? ALL_PRODUCTS.slice(0, 6)
-    : ALL_PRODUCTS.filter(item => item.collegeId === activeTabCollege);
+    ? products.slice(0, 6)
+    : products.filter(item => item.collegeId === activeTabCollege).slice(0, 6);
 
   const topCollegeTabs = [
     { id: 'all', name: 'All Kerala' },
@@ -282,7 +301,7 @@ export default function Home() {
             to="/products"
             className="text-sm font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1"
           >
-            <span>Browse All {ALL_PRODUCTS.length}+ Items</span>
+            <span>Browse All {products.length} Items</span>
             <span>&rarr;</span>
           </Link>
         </div>
@@ -305,13 +324,25 @@ export default function Home() {
         </div>
 
         {/* Product Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-          {filteredListings.map(item => (
-            <ProductCard key={item.id} product={item} />
-          ))}
-        </div>
+        {loadingProducts ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map(n => (
+              <div key={n} className="h-80 rounded-2xl border border-slate-200 bg-white animate-pulse p-4 space-y-3">
+                <div className="h-44 rounded-xl bg-slate-200" />
+                <div className="h-4 w-3/4 rounded bg-slate-200" />
+                <div className="h-3 w-1/2 rounded bg-slate-100" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+            {filteredListings.map(item => (
+              <ProductCard key={item._id || item.id} product={item} />
+            ))}
+          </div>
+        )}
 
-        {filteredListings.length === 0 && (
+        {!loadingProducts && filteredListings.length === 0 && (
           <div className="text-center py-12 bg-white rounded-2xl border border-slate-200">
             <p className="text-slate-500 text-sm">No items currently listed for this campus.</p>
             <Link

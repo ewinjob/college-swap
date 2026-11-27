@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { FaLock, FaGraduationCap, FaArrowRight, FaSearch } from 'react-icons/fa';
 import { showLoginRequiredAlert } from '../../utils/alerts';
 
